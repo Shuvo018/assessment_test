@@ -1,70 +1,7 @@
 {% extends "base.html" %}
-
+{% load static %}
 {% block title %}Dashboard — Assessment Platform{% endblock %}
 
-{% block extra_css %}
-<style>
-  .navbar {
-    background: #fff;
-    border-bottom: 1px solid #e5e7eb;
-    padding: .9rem 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .navbar-brand { font-weight: 700; font-size: 1.1rem; color: #6366f1; }
-  .navbar-user  { display: flex; align-items: center; gap: 1rem; font-size: .9rem; color: #555; }
-
-  .badge {
-    display: inline-block;
-    padding: .2rem .65rem;
-    border-radius: 999px;
-    font-size: .75rem;
-    font-weight: 600;
-    text-transform: capitalize;
-  }
-  .badge-teacher { background: #ede9fe; color: #5b21b6; }
-  .badge-student { background: #dbeafe; color: #1e40af; }
-
-  .logout-btn {
-    padding: .4rem .9rem;
-    background: none;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    font-size: .875rem;
-    cursor: pointer;
-    color: #555;
-    transition: background .15s;
-  }
-  .logout-btn:hover { background: #f9fafb; }
-
-  .main { padding: 2.5rem 2rem; max-width: 860px; margin: 0 auto; }
-
-  .welcome-box {
-    background: #fff;
-    border-radius: 12px;
-    padding: 2rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,.08);
-    margin-bottom: 2rem;
-  }
-  .welcome-box h2 { font-size: 1.4rem; margin-bottom: .5rem; }
-  .welcome-box p  { color: #555; font-size: .95rem; }
-
-  .info-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 1rem;
-  }
-  .info-card {
-    background: #fff;
-    border-radius: 10px;
-    padding: 1.25rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,.07);
-  }
-  .info-card .label { font-size: .78rem; color: #888; text-transform: uppercase; letter-spacing: .04em; margin-bottom: .4rem; }
-  .info-card .value { font-size: 1rem; font-weight: 500; color: #1a1a1a; word-break: break-all; }
-</style>
-{% endblock %}
 
 {% block content %}
 <nav class="navbar">
