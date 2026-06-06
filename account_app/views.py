@@ -7,7 +7,7 @@ from .forms import RegisterForm, LoginForm
 
 def register_view(request):
     if request.user.is_authenticated:
-        return redirect("dashboard")
+        return redirect("profile")
 
     form = RegisterForm(request.POST or None)
     if request.method == "POST":
@@ -15,7 +15,7 @@ def register_view(request):
             user = form.save()
             login(request, user)
             messages.success(request, f"Welcome, {user.first_name}! Your account has been created.")
-            return redirect("dashboard")
+            return redirect("profile")
         else:
             messages.error(request, "Please fix the errors below.")
 
@@ -24,7 +24,7 @@ def register_view(request):
 
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect("dashboard")
+        return redirect("profile")
 
     form = LoginForm(request, data=request.POST or None)
     if request.method == "POST":
@@ -32,7 +32,7 @@ def login_view(request):
             user = form.get_user()
             login(request, user)
             messages.success(request, f"Welcome back, {user.first_name}!")
-            next_url = request.GET.get("next", "dashboard")
+            next_url = request.GET.get("next", "profile")
             return redirect(next_url)
         else:
             messages.error(request, "Invalid email or password.")
@@ -46,7 +46,7 @@ def logout_view(request):
         logout(request)
         messages.success(request, "You have been logged out.")
         return redirect("login")
-    return redirect("dashboard")
+    return redirect("profile")
 
 
 @login_required

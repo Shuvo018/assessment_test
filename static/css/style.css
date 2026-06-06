@@ -12,8 +12,9 @@ body {
   color: #1a1a1a;
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
+    flex-direction: column;
 }
+
 
 .card {
   background: #fff;
@@ -146,62 +147,6 @@ body {
   border: 1px solid #bfdbfe;
 }
 
-.navbar {
-  background: #fff;
-  border-bottom: 1px solid #e5e7eb;
-  padding: .9rem 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.navbar-brand {
-  font-weight: 700;
-  font-size: 1.1rem;
-  color: #6366f1;
-}
-
-.navbar-user {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  font-size: .9rem;
-  color: #555;
-}
-
-.badge {
-  display: inline-block;
-  padding: .2rem .65rem;
-  border-radius: 999px;
-  font-size: .75rem;
-  font-weight: 600;
-  text-transform: capitalize;
-}
-
-.badge-teacher {
-  background: #ede9fe;
-  color: #5b21b6;
-}
-
-.badge-student {
-  background: #dbeafe;
-  color: #1e40af;
-}
-
-.logout-btn {
-  padding: .4rem .9rem;
-  background: none;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: .875rem;
-  cursor: pointer;
-  color: #555;
-  transition: background .15s;
-}
-
-.logout-btn:hover {
-  background: #f9fafb;
-}
 
 .main {
   padding: 2.5rem 2rem;

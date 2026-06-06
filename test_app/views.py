@@ -53,7 +53,7 @@ def test_update_view(request, pk):
     if request.method == "POST" and form.is_valid():
         form.save()
         messages.success(request, "Test updated.")
-        return redirect("teacher_dashboard")
+        return redirect("dashboard")
     return render(request, "tests/test_form.html", {"form": form, "action": "Update", "test": test})
 
 
@@ -63,7 +63,7 @@ def test_delete_view(request, pk):
     if request.method == "POST":
         test.delete()
         messages.success(request, f'"{test.title}" has been deleted.')
-        return redirect("teacher_dashboard")
+        return redirect("dashboard")
     return render(request, "tests/test_confirm_delete.html", {"test": test})
 
 
@@ -75,6 +75,7 @@ def test_delete_view(request, pk):
 def test_edit_questions_view(request, pk):
     test      = get_object_or_404(Test, pk=pk, teacher=request.user)
     questions = test.questions.prefetch_related("options").all()
+    print(questions)
     return render(request, "tests/test_edit_questions.html", {
         "test":      test,
         "questions": questions,

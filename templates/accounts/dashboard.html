@@ -1,20 +1,10 @@
-{% extends "base.html" %}
+{% extends 'accounts/base.html' %}
 {% load static %}
 {% block title %}Dashboard — Assessment Platform{% endblock %}
 
 
 {% block content %}
-<nav class="navbar">
-  <span class="navbar-brand">Assessment Platform</span>
-  <div class="navbar-user">
-    <span>{{ user.full_name }}</span>
-    <span class="badge badge-{{ user.role }}">{{ user.role }}</span>
-    <form method="post" action="{% url 'logout' %}" style="margin:0;">
-      {% csrf_token %}
-      <button type="submit" class="logout-btn">Sign out</button>
-    </form>
-  </div>
-</nav>
+
 
 <main class="main">
   <div class="welcome-box">

@@ -1,0 +1,13 @@
+<nav class="nav">
+  <a class="nav-brand" href="{% url 'dashboard' %}">📝 Assessment Platform</a>
+  <div class="nav-right">
+    <a href="{% url 'profile' %}">{{ request.user.full_name }}</a>
+    <span class="badge {% if request.user.is_teacher %}badge-published{% else %}badge-draft{% endif %}">
+      {{ request.user.role }}
+    </span>
+    <form class="logout-form" method="post" action="{% url 'logout' %}">
+      {% csrf_token %}
+      <button class="logout-btn" type="submit">Sign out</button>
+    </form>
+  </div>
+</nav>

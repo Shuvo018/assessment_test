@@ -123,7 +123,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # custom User model
 AUTH_USER_MODEL = "account_app.User"
 # Where to redirect after login / logout
-LOGIN_URL          = "/login/"
-LOGIN_REDIRECT_URL = "/dashboard/"
-LOGOUT_REDIRECT_URL = "/login/"
+LOGIN_URL          = "/auth/login/"
+LOGIN_REDIRECT_URL = "/auth/dashboard/"
+LOGOUT_REDIRECT_URL = "/auth/login/"
  
