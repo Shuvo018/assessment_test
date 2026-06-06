@@ -1,0 +1,57 @@
+{% extends "tests/base.html" %}
+{% block title %}Your Score — {{ attempt.test.title }}{% endblock %}
+{% block content %}
+<div style="max-width:680px;margin:0 auto;">
+
+  <div class="card score-big">
+    <div class="number">{{ attempt.percentage }}%</div>
+    <div class="grade">Grade: {{ attempt.grade }}</div>
+    <div class="label">{{ attempt.score }} / {{ attempt.total_points }} points</div>
+    <div style="margin-top:1rem;font-size:.85rem;color:#888;">{{ attempt.test.title }}</div>
+  </div>
+
+  <h2 style="font-size:1.1rem;font-weight:600;margin:1.5rem 0 .75rem;">Answer Review</h2>
+
+  {% for answer in answers %}
+    {% if answer.selected_option %}
+      {% if answer.is_correct %}
+        <div class="answer-card correct">
+      {% else %}
+        <div class="answer-card wrong">
+      {% endif %}
+    {% else %}
+      <div class="answer-card unanswered">
+    {% endif %}
+      <div class="answer-q">Q{{ forloop.counter }}. {{ answer.question.question_text }}</div>
+      <div class="answer-opt">
+        {% if answer.selected_option %}
+          Your answer:
+          <span class="{% if answer.is_correct %}correct-answer{% else %}your-answer{% endif %}">
+            {{ answer.selected_option.option_label }}. {{ answer.selected_option.option_text }}
+            {% if answer.is_correct %} ✓{% else %} ✗{% endif %}
+          </span>
+          {% if not answer.is_correct %}
+            &nbsp;— Correct:
+            {% for opt in answer.question.options.all %}
+              {% if opt.is_correct %}
+                <span class="correct-answer">{{ opt.option_label }}. {{ opt.option_text }}</span>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+        {% else %}
+          <span style="color:#d97706;">Not answered</span> — Correct:
+          {% for opt in answer.question.options.all %}
+            {% if opt.is_correct %}
+              <span class="correct-answer">{{ opt.option_label }}. {{ opt.option_text }}</span>
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+      </div>
+    </div>
+  {% endfor %}
+
+  <div style="text-align:center;margin-top:1.5rem;">
+    <a href="{% url 'dashboard' %}" class="btn btn-primary">← Back to Dashboard</a>
+  </div>
+</div>
+{% endblock %}

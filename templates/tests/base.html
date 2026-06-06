@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Assessment Platform{% endblock %}</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: #f3f4f6; color: #111; min-height: 100vh; }
+
+    /* NAV */
+    .nav { background: #fff; border-bottom: 1px solid #e5e7eb; padding: .85rem 2rem; display: flex; align-items: center; justify-content: space-between; }
+    .nav-brand { font-weight: 700; color: #6366f1; font-size: 1.1rem; text-decoration: none; }
+    .nav-right  { display: flex; align-items: center; gap: 1rem; font-size: .875rem; color: #555; }
+    .nav-right a { color: #6366f1; text-decoration: none; }
+
+    /* LAYOUT */
+    .container { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.75rem; }
+    .page-header h1 { font-size: 1.5rem; font-weight: 700; }
+
+    /* CARDS */
+    .card { background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.08); padding: 1.5rem; margin-bottom: 1rem; }
+    .card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+    .card-title  { font-size: 1.05rem; font-weight: 600; margin-bottom: .25rem; }
+    .card-meta   { font-size: .8rem; color: #888; }
+
+    /* BADGES */
+    .badge { display: inline-block; padding: .2rem .6rem; border-radius: 999px; font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+    .badge-draft     { background: #f3f4f6; color: #555; }
+    .badge-published { background: #d1fae5; color: #065f46; }
+    .badge-closed    { background: #fee2e2; color: #991b1b; }
+
+    /* BUTTONS */
+    .btn { display: inline-flex; align-items: center; gap: .35rem; padding: .5rem 1.1rem; border-radius: 8px; font-size: .875rem; font-weight: 500; cursor: pointer; border: none; text-decoration: none; transition: background .15s, opacity .15s; }
+    .btn-primary   { background: #6366f1; color: #fff; }
+    .btn-primary:hover { background: #4f46e5; }
+    .btn-secondary { background: #f3f4f6; color: #333; }
+    .btn-secondary:hover { background: #e5e7eb; }
+    .btn-danger    { background: #fee2e2; color: #dc2626; }
+    .btn-danger:hover { background: #fecaca; }
+    .btn-success   { background: #d1fae5; color: #065f46; }
+    .btn-success:hover { background: #a7f3d0; }
+    .btn-sm { padding: .3rem .75rem; font-size: .8rem; }
+
+    /* FORMS */
+    .form-group { margin-bottom: 1.1rem; }
+    .form-group label { display: block; font-size: .85rem; font-weight: 500; margin-bottom: .4rem; color: #374151; }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%; padding: .6rem .85rem; border: 1px solid #d1d5db; border-radius: 8px;
+      font-size: .95rem; outline: none; transition: border-color .15s, box-shadow .15s; background: #fff;
+    }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+      border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,.15);
+    }
+    .field-error { font-size: .8rem; color: #dc2626; margin-top: .3rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+
+    /* MESSAGES */
+    .messages { margin-bottom: 1.25rem; }
+    .message { padding: .65rem 1rem; border-radius: 8px; font-size: .875rem; margin-bottom: .5rem; }
+    .message.success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+    .message.error   { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+    .message.warning { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+
+    /* TABLE */
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th { text-align: left; padding: .65rem 1rem; background: #f9fafb; border-bottom: 1px solid #e5e7eb; font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; color: #6b7280; }
+    td { padding: .75rem 1rem; border-bottom: 1px solid #f3f4f6; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafafa; }
+
+    /* OPTION ROW (question form) */
+    .option-row { display: grid; grid-template-columns: 60px 1fr 80px; gap: .6rem; align-items: center; margin-bottom: .5rem; }
+    .option-row .correct-label { display: flex; align-items: center; gap: .4rem; font-size: .8rem; color: #555; }
+
+    /* SCORE */
+    .score-big { text-align: center; padding: 2rem 1rem; }
+    .score-big .number { font-size: 4rem; font-weight: 800; color: #6366f1; line-height: 1; }
+    .score-big .grade  { font-size: 1.75rem; font-weight: 700; margin-top: .5rem; }
+    .score-big .label  { font-size: .9rem; color: #888; margin-top: .35rem; }
+
+    .answer-card { background: #fff; border-radius: 10px; padding: 1.1rem 1.25rem; margin-bottom: .75rem; border-left: 4px solid #e5e7eb; }
+    .answer-card.correct { border-left-color: #10b981; }
+    .answer-card.wrong   { border-left-color: #ef4444; }
+    .answer-card.unanswered { border-left-color: #f59e0b; }
+    .answer-q  { font-weight: 500; margin-bottom: .5rem; font-size: .95rem; }
+    .answer-opt { font-size: .875rem; color: #555; }
+    .answer-opt .correct-answer { color: #065f46; font-weight: 600; }
+    .answer-opt .your-answer    { color: #dc2626; }
+
+    .logout-form { margin: 0; }
+    .logout-btn { background: none; border: 1px solid #e5e7eb; padding: .35rem .8rem; border-radius: 7px; font-size: .8rem; cursor: pointer; color: #555; }
+    .logout-btn:hover { background: #f9fafb; }
+
+    .empty-state { text-align: center; padding: 3rem 1rem; color: #888; }
+    .empty-state p { margin-bottom: 1rem; }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+<nav class="nav">
+  <a class="nav-brand" href="{% url 'dashboard' %}">📝 Assessment Platform</a>
+  <div class="nav-right">
+    <span>{{ request.user.full_name }}</span>
+    <span class="badge {% if request.user.is_teacher %}badge-published{% else %}badge-draft{% endif %}">
+      {{ request.user.role }}
+    </span>
+    <form class="logout-form" method="post" action="{% url 'logout' %}">
+      {% csrf_token %}
+      <button class="logout-btn" type="submit">Sign out</button>
+    </form>
+  </div>
+</nav>
+<div class="container">
+  {% if messages %}
+    <div class="messages">
+      {% for m in messages %}
+        <div class="message {{ m.tags }}">{{ m }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+  {% block content %}{% endblock %}
+</div>
+</body>
+</html>

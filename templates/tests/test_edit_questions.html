@@ -1,0 +1,46 @@
+{% extends "tests/base.html" %}
+{% block title %}{{ action }} Test{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>{{ action }} Test</h1>
+  <a href="{% url 'dashboard' %}" class="btn btn-secondary">← Back</a>
+</div>
+<div class="card" style="max-width:600px;">
+  <form method="post" novalidate>
+    {% csrf_token %}
+    <div class="form-group">
+      <label>Title *</label>
+      {{ form.title }}
+      {% if form.title.errors %}<div class="field-error">{{ form.title.errors.0 }}</div>{% endif %}
+    </div>
+    <div class="form-group">
+      <label>Description</label>
+      {{ form.description }}
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Duration (minutes) *</label>
+        {{ form.duration_minutes }}
+        {% if form.duration_minutes.errors %}<div class="field-error">{{ form.duration_minutes.errors.0 }}</div>{% endif %}
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        {{ form.status }}
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Start time</label>
+        {{ form.start_time }}
+      </div>
+      <div class="form-group">
+        <label>End time</label>
+        {{ form.end_time }}
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; margin-top:.5rem;">
+      {{ action }} Test
+    </button>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "tests/base.html" %}
+{% block title %}Teacher Dashboard{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>My Tests</h1>
+  <a href="{% url 'test_create' %}" class="btn btn-primary">+ New Test</a>
+</div>
+
+{% if tests %}
+  {% for test in tests %}
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">{{ test.title }}</div>
+        <div class="card-meta">
+          {{ test.question_count }} question{{ test.question_count|pluralize }} &nbsp;·&nbsp;
+          {{ test.total_points }} pt{{ test.total_points|pluralize }} &nbsp;·&nbsp;
+          {{ test.duration_minutes }} min
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:.6rem; flex-wrap:wrap;">
+        <span class="badge badge-{{ test.status }}">{{ test.get_status_display }}</span>
+        <a href="{% url 'test_edit_questions' test.pk %}" class="btn btn-secondary btn-sm">Questions</a>
+        <a href="{% url 'test_update' test.pk %}"         class="btn btn-secondary btn-sm">Edit</a>
+        <a href="{% url 'test_results' test.pk %}"        class="btn btn-success btn-sm">Results</a>
+        <form method="post" action="{% url 'test_delete' test.pk %}" style="margin:0;"
+              onsubmit="return confirm('Delete {{ test.title }}?')">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+{% else %}
+  <div class="card empty-state">
+    <p>You haven't created any tests yet.</p>
+    <a href="{% url 'test_create' %}" class="btn btn-primary">Create your first test</a>
+  </div>
+{% endif %}
+{% endblock %}

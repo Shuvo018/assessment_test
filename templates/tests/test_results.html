@@ -1,0 +1,54 @@
+{% extends "tests/base.html" %}
+{% block title %}Results — {{ test.title }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Results: {{ test.title }}</h1>
+    <p style="color:#888;font-size:.875rem;margin-top:.2rem;">{{ attempts.count }} submission{{ attempts.count|pluralize }}</p>
+  </div>
+  <a href="{% url 'test_edit_questions' test.pk %}" class="btn btn-secondary">← Back</a>
+</div>
+
+{% if attempts %}
+<div class="card" style="padding:0;overflow:hidden;">
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Student</th>
+        <th>Score</th>
+        <th>Percentage</th>
+        <th>Grade</th>
+        <th>Submitted</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for attempt in attempts %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>
+          <strong>{{ attempt.student.full_name }}</strong><br>
+          <span style="font-size:.8rem;color:#888;">{{ attempt.student.email }}</span>
+        </td>
+        <td>{{ attempt.score }} / {{ attempt.total_points }}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:.5rem;">
+            <div style="flex:1;height:6px;background:#f3f4f6;border-radius:3px;max-width:80px;">
+              <div style="width:{{ attempt.percentage }}%;height:100%;background:#6366f1;border-radius:3px;"></div>
+            </div>
+            {{ attempt.percentage }}%
+          </div>
+        </td>
+        <td><strong>{{ attempt.grade }}</strong></td>
+        <td style="font-size:.8rem;color:#888;">{{ attempt.submitted_at|date:"M d, Y H:i" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="card empty-state">
+  <p>No submissions yet.</p>
+</div>
+{% endif %}
+{% endblock %}
