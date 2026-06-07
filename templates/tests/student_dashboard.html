@@ -1,40 +1,82 @@
 {% extends "tests/base.html" %}
 {% load dict_extras %}
 {% block title %}Student Dashboard{% endblock %}
+{% block extra_css %}
+<style>
+  .search-bar-inline {
+    display: flex; gap: .6rem; margin-bottom: 1.75rem;
+  }
+  .search-bar-inline input {
+    flex: 1; padding: .65rem 1rem; border: 1.5px solid #d1d5db;
+    border-radius: 10px; font-size: .9rem; outline: none;
+    transition: border-color .15s, box-shadow .15s;
+    font-family: monospace;
+  }
+  .search-bar-inline input:focus {
+    border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,.15);
+  }
+  .search-bar-inline input::placeholder { font-family: system-ui, sans-serif; color: #9ca3af; }
+
+  .score-inline {
+    display: flex; align-items: center; gap: .4rem;
+    margin-top: .45rem; flex-wrap: wrap;
+  }
+  .score-pill {
+    font-size: .78rem; font-weight: 600;
+    padding: .2rem .6rem; border-radius: 999px;
+    background: #eef2ff; color: #4338ca;
+  }
+  .grade-pill {
+    font-size: .78rem; font-weight: 700;
+    padding: .2rem .55rem; border-radius: 999px;
+  }
+  .grade-A, .grade-B { background: #d1fae5; color: #065f46; }
+  .grade-C { background: #fef9c3; color: #854d0e; }
+  .grade-D, .grade-F { background: #fee2e2; color: #991b1b; }
+</style>
+{% endblock %}
 {% block content %}
+
 <div class="page-header">
-  <h1>Available Tests</h1>
+  <h1>My Tests</h1>
+  <a href="{% url 'test_search' %}" class="btn btn-primary">🔍 Find a Test</a>
 </div>
 
-{% if tests %}
-  {% for test in tests %}
+<!-- Inline quick-search bar -->
+<form method="get" action="{% url 'test_search' %}" class="search-bar-inline">
+  <input type="text" name="code" placeholder="Have a test code? Paste it here and press Enter…" autofocus>
+  <button type="submit" class="btn btn-primary">Go</button>
+</form>
+
+{% if my_tests %}
+  {% for test in my_tests %}
   {% with attempt=attempt_map|get_item:test.pk %}
   <div class="card">
     <div class="card-header">
-      <div>
+      <div style="flex:1;min-width:0;">
         <div class="card-title">{{ test.title }}</div>
         <div class="card-meta">
+          by {{ test.teacher.full_name }} &nbsp;·&nbsp;
           {{ test.question_count }} question{{ test.question_count|pluralize }} &nbsp;·&nbsp;
           {{ test.total_points }} pt{{ test.total_points|pluralize }} &nbsp;·&nbsp;
           ⏱ {{ test.duration_minutes }} min
-          {% if test.description %} &nbsp;·&nbsp; {{ test.description }}{% endif %}
         </div>
+
         {% if attempt %}
-        <div style="margin-top:.5rem;display:flex;align-items:center;gap:.5rem;">
-          <span style="font-size:.82rem;color:#6b7280;">
-            Score: <strong style="color:#6366f1;">{{ attempt.score }}/{{ attempt.total_points }}</strong>
-            &nbsp;·&nbsp; {{ attempt.percentage }}%
-            &nbsp;·&nbsp; Grade: <strong>{{ attempt.grade }}</strong>
-          </span>
+        <div class="score-inline">
+          <span class="score-pill">{{ attempt.score }}/{{ attempt.total_points }} pts &nbsp;·&nbsp; {{ attempt.percentage }}%</span>
+          <span class="grade-pill grade-{{ attempt.grade }}">Grade {{ attempt.grade }}</span>
         </div>
         {% endif %}
       </div>
-      <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
+
+      <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;flex-shrink:0;">
         {% if attempt %}
-          <span class="btn btn-success btn-sm" style="cursor:default;">✓ Completed</span>
+          <span class="badge badge-published" style="cursor:default;">✓ Completed</span>
           <a href="{% url 'test_score' attempt.pk %}" class="btn btn-primary btn-sm">📊 See Result</a>
         {% else %}
-          <a href="{% url 'test_start' test.pk %}" class="btn btn-primary btn-sm">Start Test →</a>
+          <span class="badge badge-draft" style="cursor:default;">In Progress</span>
+          <a href="{% url 'test_take' attempt.pk %}" class="btn btn-primary btn-sm">Continue →</a>
         {% endif %}
       </div>
     </div>
@@ -43,7 +85,11 @@
   {% endfor %}
 {% else %}
   <div class="card empty-state">
-    <p>No tests are available right now. Check back later.</p>
+    <p>You haven't joined any tests yet.</p>
+    <p style="font-size:.85rem;color:#9ca3af;margin-bottom:1rem;">
+      Ask your teacher for a test code and enter it above.
+    </p>
+    <a href="{% url 'test_search' %}" class="btn btn-primary">🔍 Find a Test</a>
   </div>
 {% endif %}
 {% endblock %}

@@ -1,5 +1,18 @@
 {% extends "tests/base.html" %}
 {% block title %}Teacher Dashboard{% endblock %}
+{% block extra_css %}
+<style>
+  .code-box {
+    display: inline-flex; align-items: center; gap: .5rem;
+    background: #f3f4f6; border: 1px dashed #d1d5db;
+    border-radius: 7px; padding: .3rem .75rem;
+    font-family: monospace; font-size: .78rem; color: #555;
+    cursor: pointer; transition: background .15s;
+  }
+  .code-box:hover { background: #e5e7eb; }
+  .copy-hint { font-size: .72rem; color: #9ca3af; }
+</style>
+{% endblock %}
 {% block content %}
 <div class="page-header">
   <h1>My Tests</h1>
@@ -10,15 +23,22 @@
   {% for test in tests %}
   <div class="card">
     <div class="card-header">
-      <div>
+      <div style="flex:1;min-width:0;">
         <div class="card-title">{{ test.title }}</div>
-        <div class="card-meta">
+        <div class="card-meta" style="margin-bottom:.5rem;">
           {{ test.question_count }} question{{ test.question_count|pluralize }} &nbsp;·&nbsp;
           {{ test.total_points }} pt{{ test.total_points|pluralize }} &nbsp;·&nbsp;
           {{ test.duration_minutes }} min
         </div>
+        <!-- Shareable test code -->
+        <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
+          <span class="copy-hint">Share this code with students:</span>
+          <span class="code-box" onclick="copyCode('{{ test.pk }}', this)" title="Click to copy">
+            🔑 {{ test.pk }}
+          </span>
+        </div>
       </div>
-      <div style="display:flex; align-items:center; gap:.6rem; flex-wrap:wrap;">
+      <div style="display:flex; align-items:center; gap:.6rem; flex-wrap:wrap; flex-shrink:0;">
         <span class="badge badge-{{ test.status }}">{{ test.get_status_display }}</span>
         <a href="{% url 'test_edit_questions' test.pk %}" class="btn btn-secondary btn-sm">Questions</a>
         <a href="{% url 'test_update' test.pk %}"         class="btn btn-secondary btn-sm">Edit</a>
@@ -38,4 +58,15 @@
     <a href="{% url 'test_create' %}" class="btn btn-primary">Create your first test</a>
   </div>
 {% endif %}
+
+<script>
+function copyCode(uuid, el) {
+  navigator.clipboard.writeText(uuid).then(() => {
+    const orig = el.innerHTML;
+    el.innerHTML = "✅ Copied!";
+    el.style.background = "#d1fae5";
+    setTimeout(() => { el.innerHTML = orig; el.style.background = ""; }, 2000);
+  });
+}
+</script>
 {% endblock %}

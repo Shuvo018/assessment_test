@@ -1,5 +1,6 @@
 {% extends "tests/base.html" %}
 {% block title %}{{ test.title }}{% endblock %}
+{% load static %}
 {% block extra_css %}
 <style>
   .timer { font-size: 1.1rem; font-weight: 700; color: #6366f1; font-variant-numeric: tabular-nums; }
@@ -43,6 +44,5 @@
   </div>
 </form>
 
-<script src="{% static 'js/app.js' %}"></script>
-
 {% endblock %}
+<script src="{% static 'js/app.js' %}"></script>

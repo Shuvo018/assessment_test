@@ -20,16 +20,7 @@ def dashboard_view(request):
         tests = Test.objects.filter(teacher=user)
         return render(request, "tests/teacher_dashboard.html", {"tests": tests})
     else:
-        available = Test.objects.filter(status=Test.Status.PUBLISHED)
-        attempts  = TestAttempt.objects.filter(
-            student=user, status=TestAttempt.Status.SUBMITTED
-        ).select_related("test")
-        # map test_id → attempt so template can build "See Result" links
-        attempt_map = {str(a.test_id): a for a in attempts}
-        return render(request, "tests/student_dashboard.html", {
-            "tests":       available,
-            "attempt_map": attempt_map,
-        })
+        return redirect("student_dashboard")
 
 
 # ─────────────────────────────────────────────
@@ -55,7 +46,7 @@ def test_update_view(request, pk):
     if request.method == "POST" and form.is_valid():
         form.save()
         messages.success(request, "Test updated.")
-        return redirect("teacher_dashboard")
+        return redirect("dashboard")
     return render(request, "tests/test_form.html", {"form": form, "action": "Update", "test": test})
 
 
@@ -65,7 +56,7 @@ def test_delete_view(request, pk):
     if request.method == "POST":
         test.delete()
         messages.success(request, f'"{test.title}" has been deleted.')
-        return redirect("teacher_dashboard")
+        return redirect("dashboard")
     return render(request, "tests/test_confirm_delete.html", {"test": test})
 
 
@@ -86,10 +77,8 @@ def test_edit_questions_view(request, pk):
 @teacher_required
 def question_create_view(request, test_pk):
     test = get_object_or_404(Test, pk=test_pk, teacher=request.user)
-
     q_form  = QuestionForm(request.POST or None)
     formset = OptionFormSet(request.POST or None)
-
     if request.method == "POST" and q_form.is_valid() and formset.is_valid():
         with transaction.atomic():
             question             = q_form.save(commit=False)
@@ -100,12 +89,8 @@ def question_create_view(request, test_pk):
             formset.save()
         messages.success(request, "Question added.")
         return redirect("test_edit_questions", pk=test.pk)
-
     return render(request, "tests/question_form.html", {
-        "test":    test,
-        "q_form":  q_form,
-        "formset": formset,
-        "action":  "Add",
+        "test": test, "q_form": q_form, "formset": formset, "action": "Add",
     })
 
 
@@ -113,22 +98,16 @@ def question_create_view(request, test_pk):
 def question_update_view(request, pk):
     question = get_object_or_404(Question, pk=pk, test__teacher=request.user)
     test     = question.test
-
     q_form  = QuestionForm(request.POST or None, instance=question)
     formset = OptionFormSet(request.POST or None, instance=question)
-
     if request.method == "POST" and q_form.is_valid() and formset.is_valid():
         with transaction.atomic():
             q_form.save()
             formset.save()
         messages.success(request, "Question updated.")
         return redirect("test_edit_questions", pk=test.pk)
-
     return render(request, "tests/question_form.html", {
-        "test":    test,
-        "q_form":  q_form,
-        "formset": formset,
-        "action":  "Edit",
+        "test": test, "q_form": q_form, "formset": formset, "action": "Edit",
     })
 
 
@@ -153,8 +132,55 @@ def test_results_view(request, pk):
         status=TestAttempt.Status.SUBMITTED
     ).select_related("student").order_by("-score")
     return render(request, "tests/test_results.html", {
-        "test":     test,
-        "attempts": attempts,
+        "test": test, "attempts": attempts,
+    })
+
+
+# ─────────────────────────────────────────────
+# STUDENT — DASHBOARD & TEST SEARCH
+# ─────────────────────────────────────────────
+
+@student_required
+def student_dashboard_view(request):
+    user = request.user
+
+    # All attempts (submitted + in-progress)
+    attempts    = TestAttempt.objects.filter(student=user).select_related("test")
+    attempt_map = {str(a.test_id): a for a in attempts}
+
+    # Tests the student has joined
+    joined_ids = [a.test_id for a in attempts]
+    my_tests   = Test.objects.filter(id__in=joined_ids).select_related("teacher").order_by("-created_at")
+
+    return render(request, "tests/student_dashboard.html", {
+        "my_tests":    my_tests,
+        "attempt_map": attempt_map,
+    })
+
+
+@student_required
+def test_search_view(request):
+    """Student enters a test UUID to find and join a test."""
+    query      = request.GET.get("code", "").strip()
+    found_test = None
+    error      = None
+
+    if query:
+        try:
+            found_test = Test.objects.select_related("teacher").get(pk=query)
+            if found_test.status == Test.Status.DRAFT:
+                error      = "This test is not yet published by the teacher."
+                found_test = None
+            elif found_test.status == Test.Status.CLOSED:
+                error      = "This test is closed and no longer accepting submissions."
+                found_test = None
+        except (Test.DoesNotExist, ValueError):
+            error = "No test found with that code. Please check and try again."
+
+    return render(request, "tests/test_search.html", {
+        "query":      query,
+        "found_test": found_test,
+        "error":      error,
     })
 
 
@@ -166,7 +192,6 @@ def test_results_view(request, pk):
 def test_start_view(request, pk):
     test = get_object_or_404(Test, pk=pk, status=Test.Status.PUBLISHED)
 
-    # Prevent retake
     if TestAttempt.objects.filter(student=request.user, test=test).exists():
         messages.warning(request, "You have already attempted this test.")
         return redirect("student_dashboard")
@@ -184,7 +209,7 @@ def test_start_view(request, pk):
 
 @student_required
 def test_take_view(request, pk):
-    attempt = get_object_or_404(
+    attempt   = get_object_or_404(
         TestAttempt, pk=pk, student=request.user, status=TestAttempt.Status.IN_PROGRESS
     )
     test      = attempt.test
@@ -197,7 +222,6 @@ def test_take_view(request, pk):
                 selected_id = request.POST.get(f"question_{question.pk}")
                 selected    = None
                 is_correct  = False
-
                 if selected_id:
                     try:
                         selected   = question.options.get(pk=selected_id)
@@ -206,37 +230,30 @@ def test_take_view(request, pk):
                             score += question.points
                     except Option.DoesNotExist:
                         pass
-
                 Answer.objects.update_or_create(
                     attempt=attempt, question=question,
                     defaults={"selected_option": selected, "is_correct": is_correct},
                 )
-
             attempt.score        = score
             attempt.status       = TestAttempt.Status.SUBMITTED
             attempt.submitted_at = timezone.now()
             attempt.save()
-
         messages.success(request, "Test submitted successfully!")
         return redirect("test_score", pk=attempt.pk)
 
     return render(request, "tests/test_take.html", {
-        "attempt":   attempt,
-        "test":      test,
-        "questions": questions,
+        "attempt": attempt, "test": test, "questions": questions,
     })
 
 
 @student_required
 def test_score_view(request, pk):
-    attempt   = get_object_or_404(
+    attempt = get_object_or_404(
         TestAttempt, pk=pk, student=request.user, status=TestAttempt.Status.SUBMITTED
     )
-    answers   = attempt.answers.select_related(
+    answers = attempt.answers.select_related(
         "question", "selected_option"
     ).prefetch_related("question__options").order_by("question__order_index")
-
     return render(request, "tests/test_score.html", {
-        "attempt": attempt,
-        "answers": answers,
+        "attempt": attempt, "answers": answers,
     })
