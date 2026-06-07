@@ -3,7 +3,7 @@ from . import views
 
 urlpatterns = [
     # shared dashboard
-    path("dashboard/",                            views.dashboard_view,           name="dashboard"),
+    path("",                            views.dashboard_view,           name="dashboard"),
 
     # teacher — test CRUD
     path("tests/create/",                         views.test_create_view,         name="test_create"),

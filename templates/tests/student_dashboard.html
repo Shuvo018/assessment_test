@@ -1,4 +1,5 @@
 {% extends "tests/base.html" %}
+{% load dict_extras %}
 {% block title %}Student Dashboard{% endblock %}
 {% block content %}
 <div class="page-header">
@@ -7,6 +8,7 @@
 
 {% if tests %}
   {% for test in tests %}
+  {% with attempt=attempt_map|get_item:test.pk %}
   <div class="card">
     <div class="card-header">
       <div>
@@ -17,16 +19,27 @@
           ⏱ {{ test.duration_minutes }} min
           {% if test.description %} &nbsp;·&nbsp; {{ test.description }}{% endif %}
         </div>
+        {% if attempt %}
+        <div style="margin-top:.5rem;display:flex;align-items:center;gap:.5rem;">
+          <span style="font-size:.82rem;color:#6b7280;">
+            Score: <strong style="color:#6366f1;">{{ attempt.score }}/{{ attempt.total_points }}</strong>
+            &nbsp;·&nbsp; {{ attempt.percentage }}%
+            &nbsp;·&nbsp; Grade: <strong>{{ attempt.grade }}</strong>
+          </span>
+        </div>
+        {% endif %}
       </div>
-      <div>
-        {% if test.pk in attempted_ids %}
+      <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
+        {% if attempt %}
           <span class="btn btn-success btn-sm" style="cursor:default;">✓ Completed</span>
+          <a href="{% url 'test_score' attempt.pk %}" class="btn btn-primary btn-sm">📊 See Result</a>
         {% else %}
-          <a href="{% url 'test_start' test.pk %}" class="btn btn-primary btn-sm">Start Test</a>
+          <a href="{% url 'test_start' test.pk %}" class="btn btn-primary btn-sm">Start Test →</a>
         {% endif %}
       </div>
     </div>
   </div>
+  {% endwith %}
   {% endfor %}
 {% else %}
   <div class="card empty-state">

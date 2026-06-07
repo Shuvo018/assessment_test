@@ -21,12 +21,14 @@ def dashboard_view(request):
         return render(request, "tests/teacher_dashboard.html", {"tests": tests})
     else:
         available = Test.objects.filter(status=Test.Status.PUBLISHED)
-        attempted_ids = TestAttempt.objects.filter(
+        attempts  = TestAttempt.objects.filter(
             student=user, status=TestAttempt.Status.SUBMITTED
-        ).values_list("test_id", flat=True)
+        ).select_related("test")
+        # map test_id → attempt so template can build "See Result" links
+        attempt_map = {str(a.test_id): a for a in attempts}
         return render(request, "tests/student_dashboard.html", {
-            "tests":        available,
-            "attempted_ids": list(attempted_ids),
+            "tests":       available,
+            "attempt_map": attempt_map,
         })
 
 
@@ -53,7 +55,7 @@ def test_update_view(request, pk):
     if request.method == "POST" and form.is_valid():
         form.save()
         messages.success(request, "Test updated.")
-        return redirect("dashboard")
+        return redirect("teacher_dashboard")
     return render(request, "tests/test_form.html", {"form": form, "action": "Update", "test": test})
 
 
@@ -63,7 +65,7 @@ def test_delete_view(request, pk):
     if request.method == "POST":
         test.delete()
         messages.success(request, f'"{test.title}" has been deleted.')
-        return redirect("dashboard")
+        return redirect("teacher_dashboard")
     return render(request, "tests/test_confirm_delete.html", {"test": test})
 
 
@@ -75,7 +77,6 @@ def test_delete_view(request, pk):
 def test_edit_questions_view(request, pk):
     test      = get_object_or_404(Test, pk=pk, teacher=request.user)
     questions = test.questions.prefetch_related("options").all()
-    print(questions)
     return render(request, "tests/test_edit_questions.html", {
         "test":      test,
         "questions": questions,
@@ -226,7 +227,7 @@ def test_take_view(request, pk):
     })
 
 
-@login_required
+@student_required
 def test_score_view(request, pk):
     attempt   = get_object_or_404(
         TestAttempt, pk=pk, student=request.user, status=TestAttempt.Status.SUBMITTED
