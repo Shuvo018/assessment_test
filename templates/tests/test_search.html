@@ -1,56 +1,8 @@
 {% extends "tests/base.html" %}
+{% load static %}
 {% block title %}Find a Test{% endblock %}
 {% block extra_css %}
-<style>
-  .search-hero {
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-    border-radius: 16px; padding: 2.5rem 2rem; color: #fff;
-    text-align: center; margin-bottom: 2rem;
-  }
-  .search-hero h2 { font-size: 1.6rem; font-weight: 700; margin-bottom: .4rem; }
-  .search-hero p  { opacity: .85; font-size: .95rem; margin-bottom: 1.5rem; }
-
-  .search-box {
-    display: flex; gap: .6rem; max-width: 560px; margin: 0 auto;
-  }
-  .search-box input {
-    flex: 1; padding: .75rem 1rem; border-radius: 10px; border: none;
-    font-size: .95rem; outline: none; font-family: monospace;
-    box-shadow: 0 2px 8px rgba(0,0,0,.15);
-  }
-  .search-box input::placeholder { color: #aaa; font-family: system-ui, sans-serif; }
-  .search-box button {
-    padding: .75rem 1.5rem; background: #fff; color: #6366f1;
-    border: none; border-radius: 10px; font-weight: 700;
-    cursor: pointer; font-size: .95rem; white-space: nowrap;
-    box-shadow: 0 2px 8px rgba(0,0,0,.15); transition: opacity .15s;
-  }
-  .search-box button:hover { opacity: .9; }
-
-  .found-card {
-    background: #fff; border-radius: 14px;
-    box-shadow: 0 2px 12px rgba(99,102,241,.12);
-    border: 2px solid #6366f1; padding: 2rem;
-    max-width: 560px; margin: 0 auto;
-    text-align: center;
-  }
-  .found-card .test-icon { font-size: 2.5rem; margin-bottom: .75rem; }
-  .found-card .test-title { font-size: 1.4rem; font-weight: 700; margin-bottom: .3rem; }
-  .found-card .test-teacher { font-size: .875rem; color: #6b7280; margin-bottom: 1rem; }
-  .found-card .test-meta {
-    display: flex; justify-content: center; gap: 1.5rem;
-    font-size: .875rem; color: #555; margin-bottom: 1.5rem;
-    flex-wrap: wrap;
-  }
-  .found-card .test-meta span { display: flex; align-items: center; gap: .35rem; }
-
-  .error-card {
-    background: #fef2f2; border: 1.5px solid #fecaca;
-    border-radius: 12px; padding: 1.25rem 1.5rem;
-    color: #991b1b; font-size: .9rem;
-    max-width: 560px; margin: 0 auto; text-align: center;
-  }
-</style>
+<link rel="stylesheet" href="{% static 'css/test_search_style.css' %}">
 {% endblock %}
 {% block content %}
 
