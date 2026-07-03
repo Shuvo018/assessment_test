@@ -13,8 +13,12 @@ SECRET_KEY = 'django-insecure-so#xh(4w7*mz1hev%$tkrhc$zlqgtd*u+!b#ld6-343vb997xd
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://creation-relatable-grimy.ngrok-free.dev',
+    'https://*.ngrok-free.dev',  # This covers you if the subdomain changes later
+]
 
 # Application definition
 
