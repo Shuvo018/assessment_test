@@ -16,7 +16,7 @@
 {% block content %}
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
   <h1 style="font-size:1.3rem;font-weight:700;">{{ test.title }}</h1>
-  <div class="timer" id="timer">⏱ {{ test.duration_minutes }}:00</div>
+  <div class="timer" id="timer" data-duration-minutes="{{ test.duration_minutes }}">⏱ {{ test.duration_minutes }}:00</div>
 </div>
 
 <form method="post" id="test-form" novalidate>
@@ -61,4 +61,6 @@
 </form>
 
 {% endblock %}
+{% block extra_js %}
 <script src="{% static 'js/app.js' %}"></script>
+{% endblock %}

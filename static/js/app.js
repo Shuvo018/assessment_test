@@ -1,17 +1,37 @@
 // Timer
-let totalSeconds = {{ test.duration_minutes }} * 60;
-const timerEl = document.getElementById("timer");
-const interval = setInterval(() => {
-    totalSeconds--;
-    const m = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
-    const s = String(totalSeconds % 60).padStart(2, "0");
-    timerEl.textContent = `⏱ ${m}:${s}`;
-    if (totalSeconds <= 60) timerEl.classList.add("warning");
-    if (totalSeconds <= 0) {
-        clearInterval(interval);
-        document.getElementById("test-form").submit();
+document.addEventListener("DOMContentLoaded", () => {
+    const timerEl = document.getElementById("timer");
+    const testForm = document.getElementById("test-form");
+
+    if (!timerEl || !testForm) {
+        return;
     }
-}, 1000);
+
+    const durationMinutes = parseInt(timerEl.dataset.durationMinutes || "0", 10);
+    let totalSeconds = durationMinutes * 60;
+
+    if (totalSeconds <= 0) {
+        return;
+    }
+
+    timerEl.textContent = `⏱ ${String(durationMinutes).padStart(2, "0")}:00`;
+
+    const interval = window.setInterval(() => {
+        totalSeconds--;
+        const m = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
+        const s = String(totalSeconds % 60).padStart(2, "0");
+        timerEl.textContent = `⏱ ${m}:${s}`;
+
+        if (totalSeconds <= 60) {
+            timerEl.classList.add("warning");
+        }
+
+        if (totalSeconds <= 0) {
+            window.clearInterval(interval);
+            testForm.submit();
+        }
+    }, 1000);
+});
 
 // Highlight selected
 function markSelected(qPk, radio) {
