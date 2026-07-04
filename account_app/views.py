@@ -5,9 +5,15 @@ from django.contrib import messages
 from .forms import RegisterForm, LoginForm, ProfileForm
 
 
+def get_post_login_redirect(user):
+    if user.is_teacher:
+        return "dashboard"
+    return "student_dashboard"
+
+
 def register_view(request):
     if request.user.is_authenticated:
-        return redirect("profile")
+        return redirect(get_post_login_redirect(request.user))
 
     form = RegisterForm(request.POST or None)
     if request.method == "POST":
@@ -15,7 +21,7 @@ def register_view(request):
             user = form.save()
             login(request, user)
             messages.success(request, f"Welcome, {user.first_name}! Your account has been created.")
-            return redirect("profile")
+            return redirect(get_post_login_redirect(user))
         else:
             messages.error(request, "Please fix the errors below.")
 
@@ -24,7 +30,7 @@ def register_view(request):
 
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect("profile")
+        return redirect(get_post_login_redirect(request.user))
 
     form = LoginForm(request, data=request.POST or None)
     if request.method == "POST":
@@ -32,8 +38,10 @@ def login_view(request):
             user = form.get_user()
             login(request, user)
             messages.success(request, f"Welcome back, {user.first_name}!")
-            next_url = request.GET.get("next", "profile")
-            return redirect(next_url)
+            next_url = request.GET.get("next")
+            if next_url:
+                return redirect(next_url)
+            return redirect(get_post_login_redirect(user))
         else:
             messages.error(request, "Invalid email or password.")
 
