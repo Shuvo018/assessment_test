@@ -6,8 +6,8 @@
   <a href="{% url 'test_edit_questions' test.pk %}" class="btn btn-secondary">← Back to Questions</a>
 </div>
 
-<div class="card" style="max-width:680px;">
-  <form method="post" novalidate>
+<div class="card" style="max-width:760px;">
+  <form method="post" enctype="multipart/form-data" novalidate>
     {% csrf_token %}
 
     <div class="form-group">
@@ -19,6 +19,22 @@
       <label>Points</label>
       {{ q_form.points }}
     </div>
+    <div class="form-group">
+      <label>Question Images</label>
+      {{ q_form.images }}
+      {% if q_form.images.errors %}<div class="field-error">{{ q_form.images.errors.0 }}</div>{% endif %}
+      {% if q_form.instance.pk %}
+        {% with images=q_form.instance.images.all %}
+          {% if images %}
+            <div style="margin-top:.5rem; display:flex; flex-wrap:wrap; gap:.5rem;">
+              {% for image in images %}
+                <img src="{{ image.image.url }}" alt="Question image" style="width:72px; height:72px; object-fit:cover; border-radius:6px; border:1px solid #e5e7eb;">
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+      {% endif %}
+    </div>
     {{ q_form.order_index }}
 
     <hr style="border:none;border-top:1px solid #e5e7eb;margin:1.25rem 0;">
@@ -28,10 +44,21 @@
 
     {{ formset.management_form }}
     {% for opt_form in formset %}
-      <div class="option-row">
+      <div class="option-row" style="align-items:flex-start;">
         <div>{{ opt_form.option_label }}</div>
-        <div>{{ opt_form.option_text }}
+        <div>
+          {{ opt_form.option_text }}
           {% if opt_form.option_text.errors %}<div class="field-error">{{ opt_form.option_text.errors.0 }}</div>{% endif %}
+          <div style="margin-top:.45rem;">
+            <label style="font-size:.85rem; font-weight:600; color:#374151;">Image</label>
+            {{ opt_form.image }}
+            {% if opt_form.image.errors %}<div class="field-error">{{ opt_form.image.errors.0 }}</div>{% endif %}
+            {% if opt_form.instance.pk and opt_form.instance.image %}
+              <div style="margin-top:.5rem; display:flex; flex-wrap:wrap; gap:.5rem;">
+                <img src="{{ opt_form.instance.image.url }}" alt="Option image" style="width:72px; height:72px; object-fit:cover; border-radius:6px; border:1px solid #e5e7eb;">
+              </div>
+            {% endif %}
+          </div>
         </div>
         <label class="correct-label">
           {{ opt_form.is_correct }} Correct

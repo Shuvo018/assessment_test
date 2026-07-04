@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.utils import timezone
 from django.db import transaction
 
-from .models import Test, Question, Option, TestAttempt, Answer
+from .models import Test, Question, Option, QuestionImage, TestAttempt, Answer
 from .forms import TestForm, QuestionForm, OptionFormSet
 from .decorators import teacher_required, student_required
 
@@ -77,16 +77,22 @@ def test_edit_questions_view(request, pk):
 @teacher_required
 def question_create_view(request, test_pk):
     test = get_object_or_404(Test, pk=test_pk, teacher=request.user)
-    q_form  = QuestionForm(request.POST or None)
-    formset = OptionFormSet(request.POST or None)
+    q_form  = QuestionForm(request.POST or None, request.FILES or None)
+    formset = OptionFormSet(request.POST or None, request.FILES or None)
     if request.method == "POST" and q_form.is_valid() and formset.is_valid():
         with transaction.atomic():
             question             = q_form.save(commit=False)
             question.test        = test
             question.order_index = test.questions.count()
             question.save()
+            for image_file in q_form.cleaned_data.get("images", []):
+                QuestionImage.objects.create(question=question, image=image_file)
             formset.instance = question
-            formset.save()
+            options = formset.save(commit=False)
+            for option_form, option in zip(formset.forms, options):
+                if getattr(option, "pk", None) is None:
+                    option.question = question
+                option.save()
         messages.success(request, "Question added.")
         return redirect("test_edit_questions", pk=test.pk)
     return render(request, "tests/question_form.html", {
@@ -98,12 +104,16 @@ def question_create_view(request, test_pk):
 def question_update_view(request, pk):
     question = get_object_or_404(Question, pk=pk, test__teacher=request.user)
     test     = question.test
-    q_form  = QuestionForm(request.POST or None, instance=question)
-    formset = OptionFormSet(request.POST or None, instance=question)
+    q_form  = QuestionForm(request.POST or None, request.FILES or None, instance=question)
+    formset = OptionFormSet(request.POST or None, request.FILES or None, instance=question)
     if request.method == "POST" and q_form.is_valid() and formset.is_valid():
         with transaction.atomic():
             q_form.save()
-            formset.save()
+            for image_file in q_form.cleaned_data.get("images", []):
+                QuestionImage.objects.create(question=question, image=image_file)
+            options = formset.save(commit=False)
+            for option_form, option in zip(formset.forms, options):
+                option.save()
         messages.success(request, "Question updated.")
         return redirect("test_edit_questions", pk=test.pk)
     return render(request, "tests/question_form.html", {
@@ -160,14 +170,14 @@ def student_dashboard_view(request):
 
 @student_required
 def test_search_view(request):
-    """Student enters a test UUID to find and join a test."""
+    """Student enters a shared test code to find and join a test."""
     query      = request.GET.get("code", "").strip()
     found_test = None
     error      = None
 
     if query:
         try:
-            found_test = Test.objects.select_related("teacher").get(pk=query)
+            found_test = Test.objects.select_related("teacher").get(shared_code=query)
             if found_test.status == Test.Status.DRAFT:
                 error      = "This test is not yet published by the teacher."
                 found_test = None
@@ -213,7 +223,7 @@ def test_take_view(request, pk):
         TestAttempt, pk=pk, student=request.user, status=TestAttempt.Status.IN_PROGRESS
     )
     test      = attempt.test
-    questions = test.questions.prefetch_related("options").all()
+    questions = test.questions.prefetch_related("options", "images").all()
 
     if request.method == "POST":
         with transaction.atomic():

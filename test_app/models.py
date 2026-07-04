@@ -9,7 +9,6 @@ class Test(models.Model):
         PUBLISHED = "published", "Published"
         CLOSED    = "closed",    "Closed"
 
-    id              = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     teacher         = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="tests")
     title           = models.CharField(max_length=255)
     description     = models.TextField(blank=True)
@@ -17,6 +16,7 @@ class Test(models.Model):
     status          = models.CharField(max_length=10, choices=Status.choices, default=Status.DRAFT)
     start_time      = models.DateTimeField(null=True, blank=True)
     end_time        = models.DateTimeField(null=True, blank=True)
+    shared_code     = models.UUIDField(default=uuid.uuid4, editable=False)
     created_at      = models.DateTimeField(auto_now_add=True)
     updated_at      = models.DateTimeField(auto_now=True)
 
@@ -39,7 +39,6 @@ class Test(models.Model):
 
 
 class Question(models.Model):
-    id            = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     test          = models.ForeignKey(Test, on_delete=models.CASCADE, related_name="questions")
     question_text = models.TextField()
     order_index   = models.PositiveIntegerField(default=0)
@@ -53,13 +52,26 @@ class Question(models.Model):
         return f"Q{self.order_index + 1}: {self.question_text[:60]}"
 
 
+class QuestionImage(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="images")
+    image = models.ImageField(upload_to="question_images/", blank=True, null=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "question_images"
+        ordering = ["uploaded_at"]
+
+    def __str__(self):
+        return f"Image for {self.question}"
+
+
 class Option(models.Model):
     LABELS = [("A", "A"), ("B", "B"), ("C", "C"), ("D", "D")]
 
-    id           = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     question     = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="options")
     option_label = models.CharField(max_length=1, choices=LABELS)
-    option_text  = models.CharField(max_length=500)
+    option_text  = models.CharField(max_length=500, blank=True, null=True)
+    image = models.ImageField(upload_to="option_images/", blank=True, null=True)
     is_correct   = models.BooleanField(default=False)
 
     class Meta:
@@ -76,7 +88,6 @@ class TestAttempt(models.Model):
         IN_PROGRESS = "in_progress", "In Progress"
         SUBMITTED   = "submitted",   "Submitted"
 
-    id           = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     student      = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="attempts")
     test         = models.ForeignKey(Test, on_delete=models.CASCADE, related_name="attempts")
     status       = models.CharField(max_length=15, choices=Status.choices, default=Status.IN_PROGRESS)
@@ -110,7 +121,6 @@ class TestAttempt(models.Model):
 
 
 class Answer(models.Model):
-    id               = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     attempt          = models.ForeignKey(TestAttempt, on_delete=models.CASCADE, related_name="answers")
     question         = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="answers")
     selected_option  = models.ForeignKey(Option, on_delete=models.SET_NULL, null=True, blank=True, related_name="answers")

@@ -26,11 +26,27 @@
     <div class="q-text">Q{{ forloop.counter }}. {{ question.question_text }}
       <span style="font-size:.75rem;color:#888;margin-left:.5rem;">({{ question.points }} pt{{ question.points|pluralize }})</span>
     </div>
+
+    {% if question.images.exists %}
+    <div style="display:flex; flex-wrap:wrap; gap:.75rem; margin-bottom:1rem;">
+      {% for image in question.images.all %}
+      <img src="{{ image.image.url }}" alt="Question image" style="max-width:220px; max-height:160px; object-fit:cover; border-radius:8px; border:1px solid #e5e7eb;">
+      {% endfor %}
+    </div>
+    {% endif %}
+
     {% for option in question.options.all %}
     <label class="option-label" id="label_{{ question.pk }}_{{ option.pk }}">
       <input type="radio" name="question_{{ question.pk }}" value="{{ option.pk }}"
              onchange="markSelected('{{ question.pk }}', this)">
-      <span><strong>{{ option.option_label }}.</strong> {{ option.option_text }}</span>
+      <span>
+        <strong>{{ option.option_label }}.</strong> {{ option.option_text }}
+        {% if option.image %}
+        <div style="margin-top:.4rem;">
+          <img src="{{ option.image.url }}" alt="Option image" style="max-width:120px; max-height:90px; object-fit:cover; border-radius:6px; border:1px solid #e5e7eb;">
+        </div>
+        {% endif %}
+      </span>
     </label>
     {% endfor %}
   </div>

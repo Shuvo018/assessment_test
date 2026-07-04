@@ -1,6 +1,30 @@
 from django import forms
 from django.forms import inlineformset_factory
-from .models import Test, Question, Option
+from .models import Test, Question, Option, QuestionImage
+
+
+class MultipleFileInput(forms.ClearableFileInput):
+    allow_multiple_selected = True
+
+
+class MultipleFileField(forms.FileField):
+    widget = MultipleFileInput
+
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("required", False)
+        super().__init__(*args, **kwargs)
+
+    def clean(self, data, initial=None):
+        if not data:
+            return []
+        if isinstance(data, (list, tuple)):
+            cleaned_files = []
+            for item in data:
+                if item in [None, ""]:
+                    continue
+                cleaned_files.append(super().clean(item, initial))
+            return cleaned_files
+        return [super().clean(data, initial)]
 
 
 class TestForm(forms.ModelForm):
@@ -25,6 +49,8 @@ class TestForm(forms.ModelForm):
 
 
 class QuestionForm(forms.ModelForm):
+    images = MultipleFileField(required=False, label="Question images")
+
     class Meta:
         model  = Question
         fields = ["question_text", "points", "order_index"]
@@ -34,11 +60,15 @@ class QuestionForm(forms.ModelForm):
             "order_index":   forms.HiddenInput(),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["images"].widget.attrs.update({"multiple": True})
+
 
 class OptionForm(forms.ModelForm):
     class Meta:
         model  = Option
-        fields = ["option_label", "option_text", "is_correct"]
+        fields = ["option_label", "option_text", "image", "is_correct"]
         widgets = {
             "option_label": forms.Select(),
             "option_text":  forms.TextInput(attrs={"placeholder": "Option text"}),
