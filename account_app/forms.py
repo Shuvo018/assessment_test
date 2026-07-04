@@ -64,3 +64,13 @@ class LoginForm(AuthenticationForm):
         "invalid_login": "Invalid email or password. Please try again.",
         "inactive":      "This account has been deactivated.",
     }
+
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ["first_name", "last_name"]
+        widgets = {
+            "first_name": forms.TextInput(attrs={"placeholder": "First name"}),
+            "last_name":  forms.TextInput(attrs={"placeholder": "Last name"}),
+        }

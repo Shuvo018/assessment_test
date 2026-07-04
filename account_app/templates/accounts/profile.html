@@ -1,0 +1,51 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+<div style="display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:1.5rem;">
+  <div class="page-header center" style="text-align:center; width:100%;">
+    <h1>My Profile</h1>
+  </div>
+
+  <div class="card" style="max-width:560px; width:100%; margin-top:0;">
+  {% if editing %}
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="id_first_name">First name</label>
+        {{ form.first_name }}
+        {% if form.first_name.errors %}
+          <div class="field-error">{{ form.first_name.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="id_last_name">Last name</label>
+        {{ form.last_name }}
+        {% if form.last_name.errors %}
+          <div class="field-error">{{ form.last_name.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" value="{{ user.email }}" disabled class="form-control" />
+      </div>
+
+      <button type="submit" class="btn btn-primary">Save changes</button>
+      <a href="{% url 'profile' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+  {% else %}
+    <div class="form-group">
+      <label>Full name</label>
+      <div>{{ user.full_name }}</div>
+    </div>
+
+    <div class="form-group">
+      <label>Email</label>
+      <div>{{ user.email }}</div>
+    </div>
+
+    <a href="{% url 'profile' %}?edit=1" class="btn btn-primary">Update profile</a>
+  {% endif %}
+</div>
+{% endblock %}
