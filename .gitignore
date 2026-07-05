@@ -2,3 +2,5 @@ venv/
 venv
 
 todo.txt
+
+.env
