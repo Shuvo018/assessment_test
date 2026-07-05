@@ -8,7 +8,7 @@ A MCQ assessment taking platform.
 
 ## ER diagram
 
-![ER diagram](./github_images/ER_diagram.png)
+![ER diagram](./github_images/ER_image.png)
 
 ## Setup & Run
 
