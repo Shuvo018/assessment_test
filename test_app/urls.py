@@ -23,4 +23,5 @@ urlpatterns = [
     path("tests/<int:pk>/start/",                 views.test_start_view,          name="test_start"),
     path("attempts/<int:pk>/take/",               views.test_take_view,           name="test_take"),
     path("attempts/<int:pk>/score/",              views.test_score_view,          name="test_score"),
+    path("attempts/<int:pk>/cheating-detected/",  views.cheating_detected_view,   name="cheating_detected"),
 ]

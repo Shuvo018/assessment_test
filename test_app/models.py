@@ -88,13 +88,14 @@ class TestAttempt(models.Model):
         IN_PROGRESS = "in_progress", "In Progress"
         SUBMITTED   = "submitted",   "Submitted"
 
-    student      = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="attempts")
-    test         = models.ForeignKey(Test, on_delete=models.CASCADE, related_name="attempts")
-    status       = models.CharField(max_length=15, choices=Status.choices, default=Status.IN_PROGRESS)
-    score        = models.PositiveIntegerField(default=0)
-    total_points = models.PositiveIntegerField(default=0)
-    started_at   = models.DateTimeField(auto_now_add=True)
-    submitted_at = models.DateTimeField(null=True, blank=True)
+    student            = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="attempts")
+    test               = models.ForeignKey(Test, on_delete=models.CASCADE, related_name="attempts")
+    status             = models.CharField(max_length=15, choices=Status.choices, default=Status.IN_PROGRESS)
+    score              = models.PositiveIntegerField(default=0)
+    total_points       = models.PositiveIntegerField(default=0)
+    started_at         = models.DateTimeField(auto_now_add=True)
+    submitted_at       = models.DateTimeField(null=True, blank=True)
+    cheating_detected  = models.BooleanField(default=False)
 
     class Meta:
         db_table = "test_attempts"
@@ -112,6 +113,8 @@ class TestAttempt(models.Model):
 
     @property
     def grade(self):
+        if self.cheating_detected:
+            return "F"
         p = self.percentage
         if p >= 90: return "A"
         if p >= 80: return "B"

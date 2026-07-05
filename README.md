@@ -1,11 +1,14 @@
 # ASSESSMENT Platform
 A MCQ assessment taking platform.
 - Teacher can create MCQ Test
-- Auto shared code for students
+- MCQ question types text and image
 - Teacher can see all students submitted test results
 - Student can participate the test using shared code
 - After complete the test student can see there results
 
+Detect cheating:
+- if students create new tab
+- if students go to another tab
 ## ER diagram
 
 ![ER diagram](./github_images/ER_image.png)
@@ -15,7 +18,6 @@ A MCQ assessment taking platform.
 ### Prerequisites
 
 - Python 3.11+
-- pip
 
 ---
 

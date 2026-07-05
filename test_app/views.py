@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
 from django.db import transaction
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 
 from .models import Test, Question, Option, QuestionImage, TestAttempt, Answer
 from .forms import TestForm, QuestionForm, OptionFormSet
@@ -219,9 +221,23 @@ def test_start_view(request, pk):
 
 @student_required
 def test_take_view(request, pk):
-    attempt   = get_object_or_404(
-        TestAttempt, pk=pk, student=request.user, status=TestAttempt.Status.IN_PROGRESS
-    )
+    # Try to get IN_PROGRESS attempt
+    try:
+        attempt = TestAttempt.objects.get(
+            pk=pk, student=request.user, status=TestAttempt.Status.IN_PROGRESS
+        )
+    except TestAttempt.DoesNotExist:
+        # Check if already submitted
+        try:
+            submitted_attempt = TestAttempt.objects.get(pk=pk, student=request.user)
+            if submitted_attempt.status == TestAttempt.Status.SUBMITTED:
+                messages.warning(request, "This test has already been submitted. You cannot retake it.")
+                return redirect("test_score", pk=submitted_attempt.pk)
+        except TestAttempt.DoesNotExist:
+            pass
+        # If not found at all, 404
+        return get_object_or_404(TestAttempt, pk=pk, student=request.user)
+    
     test      = attempt.test
     questions = test.questions.prefetch_related("options", "images").all()
 
@@ -266,4 +282,27 @@ def test_score_view(request, pk):
     ).prefetch_related("question__options").order_by("question__order_index")
     return render(request, "tests/test_score.html", {
         "attempt": attempt, "answers": answers,
+    })
+
+
+@student_required
+@require_POST
+def cheating_detected_view(request, pk):
+    """Mark test attempt as cheating (tab switch detected)."""
+    attempt = get_object_or_404(
+        TestAttempt, pk=pk, student=request.user, status=TestAttempt.Status.IN_PROGRESS
+    )
+    
+    # Mark as cheating and auto-submit the test
+    with transaction.atomic():
+        attempt.cheating_detected = True
+        attempt.status = TestAttempt.Status.SUBMITTED
+        attempt.submitted_at = timezone.now()
+        attempt.score = 0  # Set score to 0 for cheating
+        attempt.save()
+    
+    return JsonResponse({
+        "success": True,
+        "message": "Test submitted due to tab switching. Grade: F",
+        "redirect_url": f"/attempts/{attempt.pk}/score/"
     })

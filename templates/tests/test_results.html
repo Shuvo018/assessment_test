@@ -1,5 +1,18 @@
 {% extends "tests/base.html" %}
 {% block title %}Results — {{ test.title }}{% endblock %}
+{% block extra_css %}
+<style>
+  .cheating-badge {
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: inline-block;
+  }
+</style>
+{% endblock %}
 {% block content %}
 <div class="page-header">
   <div>
@@ -19,6 +32,7 @@
         <th>Score</th>
         <th>Percentage</th>
         <th>Grade</th>
+        <th>Status</th>
         <th>Submitted</th>
       </tr>
     </thead>
@@ -40,6 +54,13 @@
           </div>
         </td>
         <td><strong>{{ attempt.grade }}</strong></td>
+        <td>
+          {% if attempt.cheating_detected %}
+          <span class="cheating-badge">⚠️ Cheating Detected</span>
+          {% else %}
+          <span style="color:#666; font-size: 0.8rem;">Normal</span>
+          {% endif %}
+        </td>
         <td style="font-size:.8rem;color:#888;">{{ attempt.submitted_at|date:"M d, Y H:i" }}</td>
       </tr>
       {% endfor %}

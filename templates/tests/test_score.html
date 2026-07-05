@@ -3,11 +3,29 @@
 {% block title %}Result — {{ attempt.test.title }}{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/test_score_style.css' %}">
+<style>
+  .cheating-alert {
+    background: #fee2e2;
+    border: 2px solid #dc2626;
+    color: #991b1b;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    text-align: center;
+  }
+</style>
 {% endblock %}
 
 {% block content %}
 {% with correct_count=attempt.answers.filter.is_correct %}
 <div style="max-width:700px;margin:0 auto;">
+
+  {% if attempt.cheating_detected %}
+  <div class="cheating-alert">
+    ⚠️ CHEATING DETECTED: Tab switching or page navigation detected during the test. Grade: F
+  </div>
+  {% endif %}
 
   <!-- Hero -->
   <div class="result-hero">
