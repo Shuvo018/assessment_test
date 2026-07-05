@@ -13,7 +13,7 @@ SECRET_KEY = 'django-insecure-so#xh(4w7*mz1hev%$tkrhc$zlqgtd*u+!b#ld6-343vb997xd
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*']
 
 CSRF_TRUSTED_ORIGINS = [
     'https://creation-relatable-grimy.ngrok-free.dev',
@@ -35,6 +35,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -134,3 +135,6 @@ LOGIN_URL          = "/auth/login/"
 LOGIN_REDIRECT_URL = "/auth/dashboard/"
 LOGOUT_REDIRECT_URL = "/auth/login/"
  
+
+
+STATICFILES_STORAGE = 'whitenoise.storage.StaticFilesStorage'
