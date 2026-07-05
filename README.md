@@ -1,5 +1,10 @@
 # ASSESSMENT Platform
-
+A MCQ assessment taking platform.
+- Teacher can create MCQ Test
+- Auto shared code for students
+- Teacher can see all students submitted test results
+- Student can participate the test using shared code
+- After complete the test student can see there results
 
 ## ER diagram
 
