@@ -9,6 +9,11 @@ A MCQ assessment taking platform.
 Detect cheating:
 - if students create new tab
 - if students go to another tab
+
+Tools: Django, CICD, Docker
+
+live: https://assessmenttest-production.up.railway.app/
+
 ## ER diagram
 
 ![ER diagram](./github_images/ER_image.png)
