@@ -18,6 +18,38 @@ live: https://assessmenttest-production.up.railway.app/
 
 ![ER diagram](./github_images/ER_image.png)
 
+# web images
+## Teachers views
+### create account
+![create account](./github_images/create_account.png)
+
+### create test
+![create test](./github_images/create_test.png)
+
+### add question
+![add question](./github_images/add_question.png)
+
+### question list
+![question list](./github_images/question_list.png)
+
+### submission list
+![submission list](./github_images/student_submission_list.png)
+
+## Student views
+### student dashboard
+![student dashboard](./github_images/student_dashboard.png)
+
+### student find test
+![find test](./github_images/find_test.png)
+
+### test start
+![test start](./github_images/test_start.png)
+
+### see result
+![see result](./github_images/see_result.png)
+
+
+
 ## Setup & Run
 
 ### Prerequisites
